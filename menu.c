@@ -111,7 +111,7 @@ void start_game(){
     getch();
     system("cls");
     // You can add your game logic here
- // game();
+    game();
 }
 
 void rules(){
