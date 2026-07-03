@@ -1,9 +1,12 @@
 struct shapes;
+struct board;
+struct board* add_row(struct board*);
+void remove_row(struct board*current);
 void game();
 int rand_shape();
 void get_cursor(int shape,struct shapes cursor);
-void set_board();
-void print_board();
+struct board* set_board();
+struct board* print_board(struct board* last);
 struct shapes rotate(struct shapes cursor);
-void check_board(struct shapes cursor);
-void update_board(struct shapes cursor);
+struct board* check_board(struct shapes cursor);
+struct board* update_board(struct shapes cursor);

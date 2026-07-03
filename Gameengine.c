@@ -17,6 +17,8 @@ struct shapes shape[6];
 struct shapes cursor;
 
 void set_shapes(){
+
+
 //shape 1
 shape[0].pos[0][0]=1;
 shape[0].pos[0][1]=1;
@@ -129,19 +131,56 @@ shape[5].pos[3][0]=0;
 shape[5].pos[3][1]=0;
 shape[5].pos[3][2]=0;
 shape[5].pos[3][3]=0;
+
+
 }
 
 //linked list funtions
-struct board* add_row (struct board*current){
+struct board* add_row (struct board* current){
+    struct board* p;
+    p=(struct board*)malloc(sizeof (struct board));
+    if(current!=NULL)
+    p->link=current;
+    for(int i=0;i<8;i++)
+    p->column[i]=0;
+    return p;
 
 }
 
-void set_board(){
-    for(int i=0;i<16;i++){
-        for(int j=0;j<8;j++){
-          
-        }
+void remove_row(struct board* current){
+    struct board* p=current->link;
+    current->link=p->link;
+    free(p);
+
+}
+
+int get_count(struct board* last){
+    int count=1;
+    struct board* p=last->link;
+    while(p!=NULL)
+    count++;
+    return count;
+}
+
+void END(struct board* last){
+    struct board* c=last;
+    struct board* p=last;
+    while(p!=NULL){
+        p=p->link;
+        free(c);
+        c=p;
     }
+    
+}
+
+struct board* set_board(){
+    struct board* last=NULL;
+    last=add_row(last);
+    struct board* current=last;
+    for(int i=2;i<=16;i++){
+        current=add_row(current);
+    }
+    return last;
 }
 
 int rand_shape(){
@@ -163,15 +202,31 @@ void get_cursor(int shape_no,struct shapes cursor){
 }
 
 
+struct board* print_board(struct board* last){
+    system("cls");
+    struct board* current=last;
+    for(int i=0;i<16;i++){
+        printf("||");
+        for(int j=0;j<8;j++){
+            if(current->column[j]==0)
+            printf(" ");
+            else
+            printf("*");
+        }
+        printf("||\n");
+    }
 
+    
+}
 
 
 
 void game(){
-    set_board();
+    struct board* last=set_board();
+    int temp;
     set_shapes();
-    do{
-        print_board();
-
-    }while(1);
+        print_board(last);
+        scanf("%d",&temp);
+        END(last);
+        exit(0);
 }
