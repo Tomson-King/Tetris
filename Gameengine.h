@@ -4,7 +4,7 @@ struct board* add_row(struct board*);
 void remove_row(struct board*current);
 void game();
 int rand_shape();
-void get_cursor(int shape,struct shapes cursor);
+void get_cursor(int shape);
 struct board* set_board();
 struct board* print_board(struct board* last);
 struct shapes rotate(struct shapes cursor);

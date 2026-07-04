@@ -136,11 +136,10 @@ shape[5].pos[3][3]=0;
 }
 
 //linked list funtions
-struct board* add_row (struct board* current){
+struct board* add_row (struct board* last){
     struct board* p;
     p=(struct board*)malloc(sizeof (struct board));
-    if(current!=NULL)
-    p->link=current;
+    p->link=last;
     for(int i=0;i<8;i++)
     p->column[i]=0;
     return p;
@@ -163,12 +162,12 @@ int get_count(struct board* last){
 }
 
 void END(struct board* last){
-    struct board* c=last;
+   
     struct board* p=last;
-    while(p!=NULL){
+    while(last!=NULL){
         p=p->link;
-        free(c);
-        c=p;
+        free(last);
+        last=p;
     }
     
 }
@@ -176,9 +175,9 @@ void END(struct board* last){
 struct board* set_board(){
     struct board* last=NULL;
     last=add_row(last);
-    struct board* current=last;
+    
     for(int i=2;i<=16;i++){
-        current=add_row(current);
+        last=add_row(last);
     }
     return last;
 }
@@ -187,13 +186,13 @@ int rand_shape(){
         // Code to get a shape
     
     srand(time(NULL));
-    int diceValue = (rand() % 6);
-    return diceValue;
+    int shape_no = (rand() % 6);
+    return shape_no;
 }
 
 
 
-void get_cursor(int shape_no,struct shapes cursor){
+void get_cursor(int shape_no){
         for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
             cursor.pos[i][j]=shape[shape_no].pos[i][j];
@@ -205,18 +204,36 @@ void get_cursor(int shape_no,struct shapes cursor){
 struct board* print_board(struct board* last){
     system("cls");
     struct board* current=last;
-    for(int i=0;i<16;i++){
+    int i,j,k;
+    for(i=0;i<16;i++){
         printf("||");
-        for(int j=0;j<8;j++){
+        for(j=0;j<8;j++){
             if(current->column[j]==0)
             printf(" ");
             else
             printf("*");
         }
-        printf("||\n");
+        printf("||    ");
+        if((i<11)&&(i>0)){
+          if((i==1)&&(i==10)){
+            printf("==========");
+          }
+          else{
+            k=4-(i/2);
+            for(j=0;j<4;j++){
+               if(cursor.pos[k][j]==0)
+               printf("  ");
+               else
+               printf("##");
+            }  
+        }          
+        }
+
+        
+        printf("\n");
     }
 
-    
+ return last;   
 }
 
 
@@ -225,8 +242,9 @@ void game(){
     struct board* last=set_board();
     int temp;
     set_shapes();
-        print_board(last);
-        scanf("%d",&temp);
+        get_cursor(rand_shape());
+        last=print_board(last);
+        temp=getch();
         END(last);
-        exit(0);
+       
 }
