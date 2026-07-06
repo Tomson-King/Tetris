@@ -8,5 +8,6 @@ void get_cursor(int shape);
 struct board* set_board();
 void print_board(struct board* last);
 void rotate();
-void check_board();
-void update_board();
+int check_board(int col,int size,struct board* last);
+struct board* update_board(int row,int col,int size,struct board* last);
+int check_lose(struct board* last);
