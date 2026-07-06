@@ -2,6 +2,7 @@ struct shapes;
 struct board;
 struct board* add_row(struct board*);
 void remove_row(struct board*current);
+struct board* get_row(int row,struct board* last);
 void game();
 int rand_shape();
 void get_cursor(int shape);

@@ -157,11 +157,22 @@ void remove_row(struct board* current){
 }
 
 int get_count(struct board* last){
-    int count=1;
-    struct board* p=last->link;
-    while(p!=NULL)
+    int count=0;
+    struct board* p=last;
+    while(p!=NULL){
     count++;
+    p=p->link;
+    }
     return count;
+}
+
+struct board* get_row(int row,struct board* last){
+     for(int a=b_len+shp_siz;a>0;a--){
+            if(a==row)
+            return last;
+            last=last->link;
+        }
+        return last;
 }
 
 void END(struct board* last){
@@ -198,7 +209,7 @@ int rand_shape(){
 void get_cursor(int shape_no){
         for(int i=0;i<shp_siz;i++){
         for(int j=0;j<shp_siz;j++){
-            cursor.pos[i][j]=shape[shape_no].pos[i][j];
+            cursor.pos[i][j]=shape[shape_no].pos[i][j]*2;
         }
     }
 }
@@ -239,90 +250,19 @@ void get_cursor(int shape_no){
     
  }
 
- int check_board(int col,int size,struct board* last){
-    int temp[shp_siz][shp_siz],stop=0,i,j,row=3,a,block;
-    do{
-        row++;
-        stop=0;
-        struct board* current=last->link;
-        for(a=1;a<b_len-row;a++){
-            current=current->link;
-        }
 
-        for(i=0;i<shp_siz;i++){
-            block=0;
-            for(j=col+size-1;j>=col;j--){
-                if(current->column[j]!=0)
-                block=1;
-                temp[i][j-col]=block;
-            }
-            current=current->link;
-
-        }
-    
-       
-    for(i=0;i<shp_siz;i++){
-        for(j=0;j<size;j++){
-          if(cursor.pos[i][j]+temp[i][j]==2){
-            stop=1;
-          }
-        }
-    }
-    
-}while(stop==1);
-return row;
- }
-
- struct board* update_board(int row,int col,int size,struct board* last){
-    int i,j,a;
-    
-       struct board* current=last->link;
-       struct board* p;
-
-    for(a=1;a<b_len-row;a++){
-            current=current->link;
-        }
-         for(i=0;i<shp_siz;i++){
-           
-            for(j=col+size-1;j>=col;j--){
-              current->column[j]=cursor.pos[i][j-col];
-            }
-            current=current->link;
-
-        }
-        current=last;
-        for(i=1;i<=b_len;i++){
-            p=current;
-            current=p->link;
-        a=0;
-        for(j=0;j<b_wdt;j++){
-            a=a+current->column[j];
-        }
-        if(a==8){
-            remove_row(p);
-        }
-        }
-        for (i=get_count(last);i<=b_len;i++)
-        last=add_row(last);
-
-        return last;
- }
-
-
-void print_board(struct board* last){
+ void print_board(struct board* last){
     system("cls");
     int i,j,k;
-    for(i=b_len+shp_siz;i>0;i--){
-        if(i>b_len){
-            last=last->link;
-        continue;
-        }
+    struct board* current=get_row(b_len,last);
+    for(i=b_len;i>0;i--){
+       
         printf("||");
         for(j=0;j<b_wdt;j++){
-            if(last->column[j]==0)
+            if(current->column[j]==0)
             printf(" ");
             else
-            printf("*");
+            printf("+");
         }
         printf("||    ");
         if((i>=b_len-((shp_siz+1)*2))&&(i<b_len)){
@@ -346,12 +286,89 @@ void print_board(struct board* last){
         }          
         }
 
-        last=last->link;
+        current=current->link;
         printf("\n");
     }
 
 
 }
+
+
+ int check_board(int col,int size,struct board* last){
+    int temp[shp_siz][shp_siz],stop=0,i,j,row=3,block;
+    do{
+        row++;
+        stop=0;
+        struct board* current;
+        current=get_row(row,last);
+
+        for(i=0;i<shp_siz;i++){
+            block=0;
+            for(j=col+size-1;j>=col;j--){
+                if(current->column[j]!=0)
+                block=1;
+                temp[i][j-col]=block;
+            }
+            current=current->link;
+
+        }
+    
+       
+    for(i=0;i<shp_siz;i++){
+        for(j=0;j<size;j++){
+          if(cursor.pos[i][j]+temp[i][j]>2){
+            stop=1;
+          }
+        }
+    }
+    
+}while(stop==1);
+return row;
+ }
+
+ struct board* update_board(int row,int col,int size,struct board* last){
+    int i,j,a;
+        printf("\n\nstarted updating");
+       struct board* current;
+        struct board* p;
+    
+       current=get_row(row,last);
+
+      for(i=shp_siz-1;i>-1;i--){
+           
+            for(j=col+size-1;j>=col;j--){
+              current->column[j]=cursor.pos[i][j-col]/2;
+            }
+            current=current->link;
+
+        }
+       // printf("\nCompleted phase 1");
+        current=last;
+        for(i=1;i<=b_len+shp_siz;i++){
+            p=current;
+           
+        a=0;
+        for(j=0;j<b_wdt;j++){
+            a=a+current->column[j];
+        }
+        if(a==8){
+            current=p->link;
+            remove_row(p);
+        }
+        
+        }
+       // printf("\nCompleted phase 2");
+       // print_board(last);
+        if(get_count(last)<b_len+shp_siz){
+        for (i=get_count(last);i<=b_len+shp_siz;i++)
+        last=add_row(last);
+        }
+        //printf("\nCompleted phase 3");
+        return last;
+ }
+
+
+
 
 int check_lose(struct board* last){
     int sum =0;
@@ -369,6 +386,7 @@ void game(){
     struct board* last=set_board();
     int key,col=0,temp=0,size=0,i,j,row=shp_siz;
     set_shapes();
+    do{
         get_cursor(rand_shape());
         print_board(last);
         printf("Use 'r' to rotate,press enter to continue");
@@ -419,11 +437,12 @@ void game(){
         if(key==13){
              
         last=update_board(row,col,size,last);
+        key=getch();
         }
 
-        if(check_lose(last)==1){
+        if(check_lose(last)==1||key=='x'){
         END(last);
         return;
         }
-       
+    }while(1);   
 }
