@@ -267,11 +267,13 @@ void get_cursor(int shape_no){
  }
  int print_cursor(int row,int col,int size,int i,int j){
     int value=0;
-if(row!=-1&&(i<=row||i>row-shp_siz)&&(j>=col||j<col+size)){
-     if(cursor.pos[shp_siz-(row-i)][(j-col)]==0)
-            printf(" ");
+if(row!=-1&&(i<=row&&i>row-shp_siz)&&(j>=col&&j<col+size)){
+        i=shp_siz-1-(row-i);
+        j=(j-col);
+     if(cursor.pos[i][j]==0)
+            value=1;
             else
-            printf("$");
+            printf("0");
 }
 else{
     value=1;
@@ -355,14 +357,15 @@ return value;
     }
      p=p->link;
     }
-  
+  if(row==3)
+  row=4;
     
 return row;
  }
 
  struct board* update_board(int row,int col,int size,struct board* last){
     int i,j,a;
-        printf("\n\nstarted updating");
+        //printf("\n\nstarted updating");
        struct board* current;
         struct board* p;
     
@@ -451,11 +454,12 @@ void game(){
         if(temp>=size)
             size=temp;
         temp=0;
-         row=check_board(col,size,last);
+         row=check_board(0,size,last);
     }
+       col=0;
      print_board(last,row,col,size);
          printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue  ");
-         col=0;
+      
         while(1){
              printf("\n row-%d col-%d size-%d",row,col,size);
             
@@ -482,7 +486,7 @@ void game(){
         if(key==13){
              
         last=update_board(row,col,size,last);
-        key=getch();
+       // key=getch();
         }
 
         if(check_lose(last)==1||key=='x'){
