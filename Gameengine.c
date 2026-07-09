@@ -16,7 +16,7 @@ struct board{
     struct board *link;
 };
 
-struct shapes shape[6];
+struct shapes shape[7];
 struct shapes cursor;
 
 void set_shapes(){
@@ -135,7 +135,23 @@ shape[5].pos[3][1]=0;
 shape[5].pos[3][2]=0;
 shape[5].pos[3][3]=0;
 
-
+//checking shape
+shape[6].pos[0][0] = 1;
+shape[6].pos[0][1] = 1;
+shape[6].pos[0][2] = 1;
+shape[6].pos[0][3] = 0;
+shape[6].pos[1][0] = 1;
+shape[6].pos[1][1] = 1;
+shape[6].pos[1][2] = 1;
+shape[6].pos[1][3] = 0;
+shape[6].pos[2][0] = 0;
+shape[6].pos[2][1] = 0;
+shape[6].pos[2][2] = 0;
+shape[6].pos[2][3] = 0;
+shape[6].pos[3][0] = 0;
+shape[6].pos[3][1] = 0;
+shape[6].pos[3][2] = 0;
+shape[6].pos[3][3] = 0;
 }
 
 //linked list funtions
@@ -149,9 +165,9 @@ struct board* add_row (struct board* last){
 
 }
 
-void remove_row(struct board* current){
-    struct board* p=current->link;
-    current->link=p->link;
+void remove_row(struct board* previous){
+    struct board* p=previous->link;
+    previous->link=p->link;
     free(p);
 
 }
@@ -249,9 +265,21 @@ void get_cursor(int shape_no){
     }
     
  }
+ int print_cursor(struct board* last,int row,int col,int size,int i,int j){
+    int value=0;
+if(row!=-1&&(i<=row||i>row-shp_siz)&&(j>=col||j<col+size)){
+     if(cursor.pos[shp_siz-(row-i)][(j-col)]==0)
+            printf(" ");
+            else
+            printf("$");
+}
+else{
+    value=1;
+}
+return value;
+ } 
 
-
- void print_board(struct board* last){
+ void print_board(struct board* last,int row,int col,int size){
     system("cls");
     int i,j,k;
     struct board* current=get_row(b_len,last);
@@ -259,10 +287,13 @@ void get_cursor(int shape_no){
        
         printf("||");
         for(j=0;j<b_wdt;j++){
+            if(print_cursor){
             if(current->column[j]==0)
             printf(" ");
             else
             printf("+");
+            }
+            
         }
         printf("||    ");
         if((i>=b_len-((shp_siz+1)*2))&&(i<b_len)){
@@ -295,34 +326,37 @@ void get_cursor(int shape_no){
 
 
  int check_board(int col,int size,struct board* last){
-    int temp[shp_siz][shp_siz],stop=0,i,j,row=3,block;
-    do{
-        row++;
-        stop=0;
-        struct board* current;
-        current=get_row(row,last);
-
-        for(i=0;i<shp_siz;i++){
-            block=0;
-            for(j=col+size-1;j>=col;j--){
-                if(current->column[j]!=0)
-                block=1;
-                temp[i][j-col]=block;
+    int temp[shp_siz][shp_siz],i,j,row;
+    
+    struct board* p=last;
+    
+    for(row=b_len+shp_siz;row>=shp_siz;row--){
+        struct board* current=p;
+        for(i=shp_siz-1;i>-1;i--){
+            for(j=0;j<size;j++){
+                temp[i][j]=current->column[col+j];
             }
             current=current->link;
+        }
 
+        for(i=0;i<shp_siz;i++){
+            for(j=0;j<shp_siz;j++){
+                if(temp[i][j]+cursor.pos[i][j]==3)
+                break;
+            }
+            if(temp[i][j]+cursor.pos[i][j]==3)
+            break;
         }
-    
-       
-    for(i=0;i<shp_siz;i++){
-        for(j=0;j<size;j++){
-          if(cursor.pos[i][j]+temp[i][j]>2){
-            stop=1;
-          }
-        }
+
+        
+    if(temp[i][j]+cursor.pos[i][j]==3){
+        row++;
+        break;
     }
+     p=p->link;
+    }
+  
     
-}while(stop==1);
 return row;
  }
 
@@ -336,25 +370,31 @@ return row;
 
       for(i=shp_siz-1;i>-1;i--){
            
-            for(j=col+size-1;j>=col;j--){
-              current->column[j]=cursor.pos[i][j-col]/2;
+            for(j=0;j<size;j++){
+              current->column[j+col]=current->column[j+col]+cursor.pos[i][j];
+              if(current->column[j+col]!=0)
+              current->column[j+col]=1;
             }
             current=current->link;
 
         }
        // printf("\nCompleted phase 1");
         current=last;
-        for(i=1;i<=b_len+shp_siz;i++){
+       while(current->link!=NULL){
             p=current;
+            current=current->link;
            
         a=0;
         for(j=0;j<b_wdt;j++){
             a=a+current->column[j];
+
         }
-        if(a==8){
-            current=p->link;
+        
+        if(a>=b_wdt){
             remove_row(p);
+            current=p;
         }
+        
         
         }
        // printf("\nCompleted phase 2");
@@ -371,6 +411,7 @@ return row;
 
 
 int check_lose(struct board* last){
+    last=get_row(b_len+1,last);
     int sum =0;
     for(int i=0;i<shp_siz;i++){
         for(int j=0;j<b_wdt;j++){
@@ -383,22 +424,24 @@ int check_lose(struct board* last){
 }
 
 void game(){
-    struct board* last=set_board();
-    int key,col=0,temp=0,size=0,i,j,row=shp_siz;
+    struct board* last=NULL;
+    last=set_board();
+    int key,col=0,temp=0,size=0,i,j,row=-1;
     set_shapes();
     do{
         get_cursor(rand_shape());
-        print_board(last);
+        //get_cursor(6);
+        print_board(last,-1,-1,-1);
         printf("Use 'r' to rotate,press enter to continue");
         key=getch();
-        while(key=='r'){
+        while(key!=13){
+            if(key=='r')
         rotate();
-        print_board(last);
+        print_board(last,-1,-1,-1);
         printf("Use 'r' to rotate,press enter to continue");
         key=getch();
-        
         }
-       
+       size=0;
          for(i=0;i<shp_siz;i++){
             
         for(j=0;j<shp_siz;j++){
@@ -408,29 +451,31 @@ void game(){
         if(temp>=size)
             size=temp;
         temp=0;
+         row=check_board(col,size,last);
     }
-     print_board(last);
-         printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue");
+     print_board(last,row,col,size);
+         printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue  ");
+         col=0;
         while(1){
-             //printf("row-%d col-%d",row,col);
+             printf("\n row-%d col-%d size-%d",row,col,size);
             
             key=getch();
             if(key==13)
             break;
             if(key=='a'){
                 if(col==0)
-                col=b_wdt-size-1;
+                col=b_wdt-size;
                 else
                 col=col-1;
             }
             if(key=='d'){
-                if(col==(b_wdt-size-1))
+                if(col==(b_wdt-size))
                 col=0;
                 else
                 col=col+1;
             }
             row=check_board(col,size,last);
-        print_board(last);
+         print_board(last,row,col,size);
          printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue");
         }
        
