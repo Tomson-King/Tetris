@@ -7,7 +7,7 @@ void game();
 int rand_shape();
 void get_cursor(int shape);
 struct board* set_board();
-int print_cursor(struct board* last,int row,int col,int size,int i,int j);
+int print_cursor(int row,int col,int size,int i,int j);
 void print_board(struct board* last,int row,int col,int size);
 void rotate();
 int check_board(int col,int size,struct board* last);

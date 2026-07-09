@@ -265,7 +265,7 @@ void get_cursor(int shape_no){
     }
     
  }
- int print_cursor(struct board* last,int row,int col,int size,int i,int j){
+ int print_cursor(int row,int col,int size,int i,int j){
     int value=0;
 if(row!=-1&&(i<=row||i>row-shp_siz)&&(j>=col||j<col+size)){
      if(cursor.pos[shp_siz-(row-i)][(j-col)]==0)
@@ -287,7 +287,7 @@ return value;
        
         printf("||");
         for(j=0;j<b_wdt;j++){
-            if(print_cursor){
+            if(print_cursor(row,col,size,i,j)){
             if(current->column[j]==0)
             printf(" ");
             else
