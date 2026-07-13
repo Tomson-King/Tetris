@@ -383,22 +383,19 @@ return row;
         }
        // printf("\nCompleted phase 1");
         current=last;
-       while(current->link!=NULL){
+       while(1){
             p=current;
             current=current->link;
-           
+            if(current==NULL)
+            break;
         a=0;
         for(j=0;j<b_wdt;j++){
             a=a+current->column[j];
-
         }
-        
         if(a>=b_wdt){
             remove_row(p);
             current=p;
-        }
-        
-        
+        }        
         }
        // printf("\nCompleted phase 2");
        // print_board(last);
@@ -489,7 +486,7 @@ void game(){
        // key=getch();
         }
 
-        if(check_lose(last)==1||key=='x'){
+        if(check_lose(last)==1){
         END(last);
         return;
         }
