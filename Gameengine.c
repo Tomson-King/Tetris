@@ -400,7 +400,7 @@ return row;
        // printf("\nCompleted phase 2");
        // print_board(last);
         if(get_count(last)<b_len+shp_siz){
-        for (i=get_count(last);i<=b_len+shp_siz;i++)
+        for (i=get_count(last);get_count(last)<b_len+shp_siz;i++)
         last=add_row(last);
         }
         //printf("\nCompleted phase 3");
