@@ -265,6 +265,20 @@ void get_cursor(int shape_no){
     }
     
  }
+ int get_size(){
+    int size=0,temp=0;
+    for(int i=0;i<shp_siz;i++){
+            
+        for(int j=0;j<shp_siz;j++){
+         if(cursor.pos[i][j]>=1)
+         temp=j+1;
+        }
+        if(temp>=size)
+            size=temp;
+        temp=0;
+    }
+    return size;
+}
  int print_cursor(int row,int col,int size,int i,int j){
     int value=0;
 if(row!=-1&&(i<=row&&i>row-shp_siz)&&(j>=col&&j<col+size)){
@@ -429,36 +443,19 @@ void game(){
     int key,col=0,temp=0,size=0,i,j,row=-1;
     set_shapes();
     do{
+        col=0,row=-1;
+        
         get_cursor(rand_shape());
         //get_cursor(6);
-        print_board(last,-1,-1,-1);
-        printf("Use 'r' to rotate,press enter to continue");
-        key=getch();
-        while(key!=13){
-            if(key=='r')
-        rotate();
-        print_board(last,-1,-1,-1);
-        printf("Use 'r' to rotate,press enter to continue");
-        key=getch();
-        }
-       size=0;
-         for(i=0;i<shp_siz;i++){
-            
-        for(j=0;j<shp_siz;j++){
-         if(cursor.pos[i][j]>=1)
-         temp=j+1;
-        }
-        if(temp>=size)
-            size=temp;
-        temp=0;
-         row=check_board(0,size,last);
-    }
-       col=0;
+        size=get_size();
+        row=check_board(col,size,last);
+      
+   
      print_board(last,row,col,size);
-         printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue  ");
+         printf("Use 'a' to move shape left or 'd' to move shape right,\n Use 'r' to rotate,press enter to continue  ");
       
         while(1){
-             printf("\n row-%d col-%d size-%d",row,col,size);
+             //printf("\n row-%d col-%d size-%d",row,col,size);
             
             key=getch();
             if(key==13)
@@ -475,9 +472,15 @@ void game(){
                 else
                 col=col+1;
             }
+            if(key=='r'){
+                rotate();
+                size=get_size();
+                if(col>(b_wdt-size))
+                col=b_wdt-size;
+            }
             row=check_board(col,size,last);
          print_board(last,row,col,size);
-         printf("Use 'a' to move shape left or 'd' to move shape right,press enter to continue");
+         printf("Use 'a' to move shape left or 'd' to move shape right,\n Use 'r' to rotate,press enter to continue");
         }
        
         if(key==13){
